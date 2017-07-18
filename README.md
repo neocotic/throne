@@ -11,7 +11,6 @@
 availability across multiple services.
 
 [![Build Status](https://img.shields.io/travis/neocotic/throne/develop.svg?style=flat-square)](https://travis-ci.org/neocotic/throne)
-[![Coverage](https://img.shields.io/codecov/c/github/neocotic/throne/develop.svg?style=flat-square)](https://codecov.io/gh/neocotic/throne)
 [![Dependency Status](https://img.shields.io/david/neocotic/throne.svg?style=flat-square)](https://david-dm.org/neocotic/throne)
 [![Dev Dependency Status](https://img.shields.io/david/dev/neocotic/throne.svg?style=flat-square)](https://david-dm.org/neocotic/throne?type=dev)
 [![License](https://img.shields.io/npm/l/throne.svg?style=flat-square)](https://github.com/neocotic/throne/blob/master/LICENSE.md)
