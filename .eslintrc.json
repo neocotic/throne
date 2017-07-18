@@ -1,0 +1,12 @@
+{
+  "extends": "notninja/es6",
+  "env": {
+    "node": true
+  },
+  "rules": {
+    "array-bracket-newline": "off",
+    "array-element-newline": "off",
+    "class-methods-use-this": "off",
+    "object-curly-newline": "off"
+  }
+}

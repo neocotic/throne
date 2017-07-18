@@ -1,0 +1,59 @@
+{
+  "name": "throne",
+  "version": "0.1.0alpha",
+  "description": "Name availability checker",
+  "homepage": "https://github.com/neocotic/throne",
+  "bugs": {
+    "url": "https://github.com/neocotic/throne/issues"
+  },
+  "author": {
+    "name": "Alasdair Mercer",
+    "email": "mercer.alasdair@gmail.com",
+    "url": "https://neocotic.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "name",
+    "availability",
+    "checker",
+    "username"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/neocotic/throne.git"
+  },
+  "dependencies": {
+    "async": "^2.5.0",
+    "chalk": "^2.0.1",
+    "commander": "^2.11.0",
+    "debug": "^2.6.8",
+    "glob": "^7.1.2",
+    "http-status-codes": "^1.1.6",
+    "lodash.defaultsdeep": "^4.6.0",
+    "lodash.groupby": "^4.6.0",
+    "lodash.sortby": "^4.7.0",
+    "lodash.trim": "^4.5.1",
+    "pollock": "^0.1.0",
+    "request": "^2.81.0",
+    "right-pad": "^1.0.1"
+  },
+  "devDependencies": {
+    "chai": "^4.1.0",
+    "eslint": "^4.2.0",
+    "eslint-config-notninja": "^0.2.2",
+    "mocha": "^3.4.2",
+    "sinon": "^2.3.8"
+  },
+  "bin": {
+    "throne": "bin/throne"
+  },
+  "main": "src/index.js",
+  "scripts": {
+    "ci": "npm run test",
+    "pretest": "eslint \"src/**/*.js\" \"test/**/*.js\"",
+    "test": "mocha -R list \"test/**/*.spec.js\""
+  },
+  "engines": {
+    "node": ">=4"
+  }
+}
