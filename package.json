@@ -38,11 +38,8 @@
     "right-pad": "^1.0.1"
   },
   "devDependencies": {
-    "chai": "^4.1.0",
     "eslint": "^4.2.0",
-    "eslint-config-notninja": "^0.2.2",
-    "mocha": "^3.4.2",
-    "sinon": "^2.3.8"
+    "eslint-config-notninja": "^0.2.2"
   },
   "bin": {
     "throne": "bin/throne"
@@ -50,8 +47,7 @@
   "main": "src/index.js",
   "scripts": {
     "ci": "npm run test",
-    "pretest": "eslint \"src/**/*.js\" \"test/**/*.js\"",
-    "test": "mocha -R list \"test/**/*.spec.js\""
+    "test": "eslint \"src/**/*.js\" \"test/**/*.js\""
   },
   "engines": {
     "node": ">=4"

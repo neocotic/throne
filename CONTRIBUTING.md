@@ -7,7 +7,7 @@ Please [search existing issues](https://github.com/neocotic/throne/issues) for t
 raising a new issue. Commenting on an existing issue is usually preferred over raising duplicate issues.
 
 Please ensure that all files conform to the coding standards, using the same coding style as the rest of the code base.
-All unit tests should be updated and passing as well. All of this can easily be checked via command-line:
+This can easily be checked via command-line:
 
 ``` bash
 # install/update package dependencies
