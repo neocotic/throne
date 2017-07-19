@@ -119,6 +119,7 @@ class CLI {
       .option('-c, --category <name>', 'only check name for services in category', (c, list) => list.concat(c), [])
       .option('-l, --list', 'list available services and categories')
       .option('-s, --service <title>', 'only check name for service', (s, list) => list.concat(s), [])
+      .option('--stack', 'print stack traces for errors')
       .option('-t, --timeout <ms>', 'control timeout for individual service checks', parseInt);
     this[_throne] = new Throne();
   }
@@ -145,7 +146,7 @@ class CLI {
     if (command.list) {
       this[_listServices]();
     } else if (name) {
-      this[_checkServices](name, command.category, command.service, command.timeout);
+      this[_checkServices](name, command.category, command.service, command.stack, command.timeout);
     } else {
       command.outputHelp();
 
@@ -153,7 +154,7 @@ class CLI {
     }
   }
 
-  [_checkServices](name, categories, services, timeout) {
+  [_checkServices](name, categories, services, stack, timeout) {
     let maxLength = 0;
 
     this[_throne].addListener('check', (event) => {
@@ -185,6 +186,10 @@ class CLI {
       this[_outputStream].clearLine();
       this[_outputStream].cursorTo(0);
       this[_printServiceStatus](event, status, maxLength, true);
+
+      if (event.error && stack) {
+        this[_errorStream].write(`${event.error.stack}${EOL}`);
+      }
     });
 
     this[_throne].addListener('report', (event) => {
@@ -192,6 +197,10 @@ class CLI {
       this[_outputStream].write(`Available on ${event.stats.available}/${event.stats.total} services${EOL}`);
       if (event.stats.failed) {
         this[_outputStream].write(`${event.stats.failed}/${event.stats.total} services failed!${EOL}`);
+
+        if (!stack) {
+          this[_outputStream].write(`Try again with the --stack option to print the full stack traces${EOL}`);
+        }
       } else {
         this[_outputStream].write(`No services failed!${EOL}`);
       }
@@ -206,7 +215,11 @@ class CLI {
         process.exit(0);
       })
       .catch((error) => {
-        this[_errorStream].write(`Throne failed: ${error.message}${EOL}`);
+        this[_errorStream].write(`Throne failed: ${stack ? error.stack : error.message}${EOL}`);
+
+        if (!stack) {
+          this[_outputStream].write(`Try again with the --stack option to print the full stack trace${EOL}`);
+        }
 
         process.exit(1);
       });
