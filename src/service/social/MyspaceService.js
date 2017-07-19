@@ -27,7 +27,7 @@ const HttpService = require('../HttpService');
 /**
  * TODO: Document
  */
-class MySpaceService extends HttpService {
+class MyspaceService extends HttpService {
 
   /**
    * TODO: Document
@@ -48,4 +48,4 @@ class MySpaceService extends HttpService {
 
 }
 
-module.exports = MySpaceService;
+module.exports = MyspaceService;
