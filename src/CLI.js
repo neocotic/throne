@@ -88,7 +88,7 @@ class CLI {
       .option('-c, --category <name>', 'only check name for services in category')
       .option('-l, --list', 'list available services and categories')
       .option('-s, --service <title>', 'only check name for service')
-      .option('-t, --timeout <ms>', 'control timeout for individual service checks [5000]', 5000);
+      .option('-t, --timeout <ms>', 'control timeout for individual service checks [5000]', parseInt);
     this[_throne] = new Throne();
   }
 
