@@ -25,6 +25,7 @@
 const async = require('async');
 const debug = require('debug')('throne');
 const EventEmitter = require('events').EventEmitter;
+const trim = require('lodash.trim');
 
 const ServiceManager = require('./service/ServiceManager');
 
@@ -63,6 +64,8 @@ class Throne extends EventEmitter {
     if (!options) {
       options = {};
     }
+
+    name = trim(name).toLowerCase();
 
     debug('Checking "%s" using options: %o', name, options);
 

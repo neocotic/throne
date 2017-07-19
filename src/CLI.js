@@ -141,7 +141,7 @@ class CLI {
     debug('Parsing arguments: %o', args);
 
     const command = this[_command].parse(args);
-    const name = trim(command.args[0]);
+    const name = trim(command.args[0]).toLowerCase();
 
     if (command.list) {
       this[_listServices]();
