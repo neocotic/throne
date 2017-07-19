@@ -41,6 +41,7 @@ const _createFilter = Symbol('createFilter');
 const _errorStream = Symbol('errorStream');
 const _listServices = Symbol('listServices');
 const _outputStream = Symbol('outputStream');
+const _prepareSearchValue = Symbol('prepareSearchValue');
 const _printServiceStatus = Symbol('printServiceStatus');
 const _sanitizeForSearch = Symbol('sanitizeForSearch');
 const _throne = Symbol('throne');
@@ -51,18 +52,48 @@ const _throne = Symbol('throne');
 class CLI {
 
   static [_createFilter](categories, services) {
-    categories = categories.map((category) => CLI[_sanitizeForSearch](trim(category)));
-    services = services.map((service) => CLI[_sanitizeForSearch](trim(service)));
+    const excludedCategories = new Set();
+    const excludedServices = new Set();
+    const includedCategories = new Set();
+    const includedServices = new Set();
+
+    categories.forEach((category) => CLI[_prepareSearchValue](category, excludedCategories, includedCategories));
+    services.forEach((service) => CLI[_prepareSearchValue](service, excludedServices, includedServices));
+
+    if (!excludedCategories.size && !excludedServices.size && !includedCategories.size && !includedServices.size) {
+      return null;
+    }
 
     return (descriptor) => {
-      if (categories.length > 0 && categories.indexOf(CLI[_sanitizeForSearch](descriptor.category)) === -1) {
+      const category = CLI[_sanitizeForSearch](descriptor.category);
+      const service = CLI[_sanitizeForSearch](descriptor.title);
+
+      if (excludedCategories.size > 0 && excludedCategories.has(category)) {
         return false;
       }
-      if (services.length > 0 && services.indexOf(CLI[_sanitizeForSearch](descriptor.title)) === -1) {
+      if (excludedServices.size > 0 && excludedServices.has(service)) {
+        return false;
+      }
+      if (includedCategories.size > 0 && !includedCategories.has(category)) {
+        return false;
+      }
+      if (includedServices.size > 0 && !includedServices.has(service)) {
         return false;
       }
       return true;
     };
+  }
+
+  static [_prepareSearchValue](value, excludes, includes) {
+    value = trim(value);
+
+    const sanitized = CLI[_sanitizeForSearch](value);
+
+    if (value[0] === ':') {
+      excludes.add(sanitized);
+    } else {
+      includes.add(sanitized);
+    }
   }
 
   static [_sanitizeForSearch](str) {
