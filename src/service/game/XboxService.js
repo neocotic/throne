@@ -22,7 +22,8 @@
 
 'use strict';
 
-/* eslint "no-process-env": "off" */
+const fs = require('fs');
+const path = require('path');
 
 const HttpService = require('../HttpService');
 
@@ -42,16 +43,37 @@ class XboxService extends HttpService {
   }
 
   /**
-  * @override
-  */
+   * @override
+   */
+  checkResponse(name, response) {
+    if (response.statusCode === 500) {
+      return true;
+    }
+
+    const badAvatarBuffer = fs.readFileSync(path.resolve(__dirname, '..', '..', 'assets', 'service', 'game',
+      'xbox-bad-avatar.png'));
+
+    return badAvatarBuffer.equals(response.body);
+  }
+
+  /**
+   * @override
+   */
+  getAcceptedStatusCodes() {
+    return [ 200, 500 ];
+  }
+
+  /**
+   * @override
+   */
   getRequestOptions(name) {
-    // TODO: Document setting XBOX_API_KEY in readme
     return {
       method: 'GET',
-      uri: `https://xboxapi.com/v2/xuid/${encodeURIComponent(name)}`,
+      uri: `https://avatar-ssl.xboxlive.com/avatar/${encodeURIComponent(name)}/avatarpic-s.png`,
       headers: {
-        'x-auth': process.env.XBOX_API_KEY || 'a8d6f6a7d3120d1e1813d9594c42b1a60a2ae6d4'
-      }
+        accept: 'image/png;q=0.9,*/*;q=0.8'
+      },
+      encoding: null
     };
   }
 
