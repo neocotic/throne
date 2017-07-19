@@ -24,7 +24,6 @@
 
 const async = require('async');
 const debug = require('debug')('throne');
-const defaultsDeep = require('lodash.defaultsdeep');
 const EventEmitter = require('events').EventEmitter;
 
 const ServiceManager = require('./service/ServiceManager');
@@ -61,7 +60,9 @@ class Throne extends EventEmitter {
    * @public
    */
   check(name, options) {
-    options = defaultsDeep({}, options, { timeout: 5000 });
+    if (!options) {
+      options = {};
+    }
 
     debug('Checking "%s" using options: %o', name, options);
 
@@ -207,7 +208,7 @@ module.exports = Throne;
  *
  * @typedef {Object} Throne~Options
  * @property {ServiceManager~ServiceFilter} [filter] -
- * @property {number} [timeout=5000] -
+ * @property {number} [timeout] -
  */
 
 /**
