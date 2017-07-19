@@ -143,6 +143,8 @@ class CLI {
       let status;
       if (event.error) {
         status = chalk.red('FAILED');
+      } else if (event.available == null) {
+        status = chalk.yellow('UNKNOWN');
       } else if (event.available) {
         status = chalk.green('AVAILABLE');
       } else {

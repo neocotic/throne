@@ -125,7 +125,7 @@ class HttpService extends Service {
    *
    * @param {string} name -
    * @param {Response} response -
-   * @return {boolean}
+   * @return {?boolean}
    * @protected
    */
   checkResponse(name, response) {

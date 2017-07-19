@@ -48,11 +48,11 @@ class Service {
    * TODO: Document
    *
    * @param {Service~CheckOptions} options -
-   * @return {Promise.<Error, boolean>}
+   * @return {Promise.<Error, ?boolean>}
    * @public
    * @abstract
    */
-  check(name) {
+  check(options) {
     pollock(Service, 'check');
   }
 
