@@ -74,17 +74,17 @@ class HttpService extends Service {
         timeout: options.timeout
       });
 
-      debug('Sending HTTP request for %s service: %o', this.title, requestOptions);
+      debug('Sending HTTP request for %s service: %o', this.descriptor.title, requestOptions);
 
       request(requestOptions, (error, response) => {
         if (error) {
-          debug('HTTP request for %s service failed: %s', this.title, error);
+          debug('HTTP request for %s service failed: %s', this.descriptor.title, error);
 
           reject(error);
         } else {
           const statusCode = response.statusCode;
 
-          debug('HTTP request for %s service responded with status code: %d', this.title, statusCode);
+          debug('HTTP request for %s service responded with status code: %d', this.descriptor.title, statusCode);
 
           if (this.getAcceptedStatusCodes().indexOf(statusCode) === -1) {
             let statusText;
@@ -98,18 +98,19 @@ class HttpService extends Service {
               message += ` - ${statusText}`;
             }
 
-            debug('%s service rejected HTTP response status code: %d (%s)', this.title, statusCode, statusText || '?');
+            debug('%s service rejected HTTP response status code: %d (%s)', this.descriptor.title, statusCode,
+              statusText || '?');
 
             reject(new Error(message));
           } else {
             try {
               const result = this.checkResponse(options.name, response);
 
-              debug('%s service determined available from HTTP response: %s', this.title, result);
+              debug('%s service determined available from HTTP response: %s', this.descriptor.title, result);
 
               resolve(result);
             } catch (e) {
-              debug('%s service failed when checking HTTP response', this.title);
+              debug('%s service failed when checking HTTP response', this.descriptor.title);
 
               reject(e);
             }
