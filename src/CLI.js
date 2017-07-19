@@ -50,15 +50,15 @@ const _throne = Symbol('throne');
  */
 class CLI {
 
-  static [_createFilter](category, service) {
-    category = CLI[_sanitizeForSearch](category);
-    service = CLI[_sanitizeForSearch](service);
+  static [_createFilter](categories, services) {
+    categories = categories.map((category) => CLI[_sanitizeForSearch](trim(category)));
+    services = services.map((service) => CLI[_sanitizeForSearch](trim(service)));
 
     return (descriptor) => {
-      if (category && category !== CLI[_sanitizeForSearch](descriptor.category)) {
+      if (categories.length > 0 && categories.indexOf(CLI[_sanitizeForSearch](descriptor.category)) === -1) {
         return false;
       }
-      if (service && service !== CLI[_sanitizeForSearch](descriptor.title)) {
+      if (services.length > 0 && services.indexOf(CLI[_sanitizeForSearch](descriptor.title)) === -1) {
         return false;
       }
       return true;
@@ -85,9 +85,9 @@ class CLI {
     this[_command] = new Command()
       .arguments('<name>')
       .version(pkg.version)
-      .option('-c, --category <name>', 'only check name for services in category')
+      .option('-c, --category <name>', 'only check name for services in category', (c, list) => list.concat(c), [])
       .option('-l, --list', 'list available services and categories')
-      .option('-s, --service <title>', 'only check name for service')
+      .option('-s, --service <title>', 'only check name for service', (s, list) => list.concat(s), [])
       .option('-t, --timeout <ms>', 'control timeout for individual service checks', parseInt);
     this[_throne] = new Throne();
   }
@@ -114,7 +114,7 @@ class CLI {
     if (command.list) {
       this[_listServices]();
     } else if (name) {
-      this[_checkServices](name, trim(command.category), trim(command.service), command.timeout);
+      this[_checkServices](name, command.category, command.service, command.timeout);
     } else {
       command.outputHelp();
 
@@ -122,7 +122,7 @@ class CLI {
     }
   }
 
-  [_checkServices](name, category, service, timeout) {
+  [_checkServices](name, categories, services, timeout) {
     let maxLength = 0;
 
     this[_throne].addListener('check', (event) => {
@@ -170,7 +170,7 @@ class CLI {
       }
     });
 
-    return this[_throne].check(name, { filter: CLI[_createFilter](category, service), timeout })
+    return this[_throne].check(name, { filter: CLI[_createFilter](categories, services), timeout })
       .then(() => {
         process.exit(0);
       })
