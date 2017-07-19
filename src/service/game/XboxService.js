@@ -50,7 +50,7 @@ class XboxService extends HttpService {
       return true;
     }
 
-    const badAvatarBuffer = fs.readFileSync(path.resolve(__dirname, '..', '..', 'assets', 'service', 'game',
+    const badAvatarBuffer = fs.readFileSync(path.resolve(__dirname, '..', '..', '..', 'assets', 'service', 'game',
       'xbox-bad-avatar.png'));
 
     return badAvatarBuffer.equals(response.body);
