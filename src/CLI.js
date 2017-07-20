@@ -26,7 +26,8 @@
 
 const chalk = require('chalk');
 const Command = require('commander').Command;
-const debug = require('debug')('throne:cli');
+const debugModule = require('debug');
+const debug = debugModule('throne:cli');
 const EOL = require('os').EOL;
 const groupBy = require('lodash.groupby');
 const rightPad = require('right-pad');
@@ -115,8 +116,10 @@ class CLI {
     this[_command] = new Command()
       .version(pkg.version)
       .option('-c, --category <name>', 'filter services by category name', (c, list) => list.concat(c), [])
+      .option('-d, --debug', 'enable debug level logging')
       .option('-s, --service <title>', 'filter service by title', (s, list) => list.concat(s), [])
-      .option('--stack', 'print stack traces for errors');
+      .option('--stack', 'print stack traces for errors')
+      .on('option:debug', () => debugModule.enable('*'));
 
     this[_command].command('check <name>')
       .alias('chk')
