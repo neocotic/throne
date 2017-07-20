@@ -25,14 +25,15 @@
 const HttpService = require('../HttpService');
 
 /**
- * TODO: Document
+ * An implementation of {@link HttpService} that checks whether the name is available on
+ * <a href="https://c9.io">Cloud9</a>.
  */
-class Cloud9Plugin extends HttpService {
+class Cloud9Service extends HttpService {
 
   /**
-   * TODO: Document
+   * Creates an instance of {@link Cloud9Service} under the specified <code>category</code>.
    *
-   * @param {string} category -
+   * @param {string} category - the category to be used
    * @public
    */
   constructor(category) {
@@ -41,6 +42,7 @@ class Cloud9Plugin extends HttpService {
 
   /**
    * @override
+   * @inheritDoc
    */
   checkResponse(name, response) {
     return response.statusCode === 403 && response.body === 'Incorrect username.';
@@ -48,6 +50,7 @@ class Cloud9Plugin extends HttpService {
 
   /**
    * @override
+   * @inheritDoc
    */
   getAcceptedStatusCodes() {
     return [ 200, 403 ];
@@ -55,6 +58,7 @@ class Cloud9Plugin extends HttpService {
 
   /**
    * @override
+   * @inheritDoc
    */
   getRequestOptions(name) {
     return {
@@ -74,4 +78,4 @@ class Cloud9Plugin extends HttpService {
 
 }
 
-module.exports = Cloud9Plugin;
+module.exports = Cloud9Service;

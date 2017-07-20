@@ -27,14 +27,15 @@ const url = require('url');
 const HttpService = require('../HttpService');
 
 /**
- * TODO: Document
+ * An implementation of {@link HttpService} that checks whether the name is available on
+ * <a href="https://www.zendesk.com">Zendesk</a>.
  */
 class ZendeskService extends HttpService {
 
   /**
-   * TODO: Document
+   * Creates an instance of {@link ZendeskService} under the specified <code>category</code>.
    *
-   * @param {string} category -
+   * @param {string} category - the category to be used
    * @public
    */
   constructor(category) {
@@ -43,15 +44,16 @@ class ZendeskService extends HttpService {
 
   /**
    * @override
+   * @inheritDoc
    */
   checkResponse(name, response) {
     const referer = url.parse(response.request.headers.referer);
-
     return referer.host === 'www.zendesk.com';
   }
 
   /**
    * @override
+   * @inheritDoc
    */
   getAcceptedStatusCodes() {
     return [ 200 ];
@@ -59,6 +61,7 @@ class ZendeskService extends HttpService {
 
   /**
    * @override
+   * @inheritDoc
    */
   getRequestOptions(name) {
     return { uri: `https://${encodeURIComponent(name)}.zendesk.com` };
