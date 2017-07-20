@@ -25,14 +25,15 @@
 const HttpService = require('../HttpService');
 
 /**
- * TODO: Document
+ * An implementation of {@link HttpService} that checks whether the name is available on
+ * <a href="https://gravatar.com">Gravatar</a>.
  */
 class GravatarService extends HttpService {
 
   /**
-   * TODO: Document
+   * Creates an instance of {@link GravatarService} under the specified <code>category</code>.
    *
-   * @param {string} category -
+   * @param {string} category - the category to be used
    * @public
    */
   constructor(category) {
@@ -41,6 +42,7 @@ class GravatarService extends HttpService {
 
   /**
    * @override
+   * @inheritDoc
    */
   getRequestOptions(name) {
     return { uri: `https://secure.gravatar.com/${encodeURIComponent(name)}` };
