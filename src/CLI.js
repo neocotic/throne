@@ -47,7 +47,17 @@ const _printServiceStatus = Symbol('printServiceStatus');
 const _sanitizeForSearch = Symbol('sanitizeForSearch');
 
 /**
- * TODO: Document
+ * The command-line interface for {@link Throne}.
+ *
+ * This CLI supports the following commands:
+ *
+ * <ul>
+ *   <li><code>check &lt;name&gt;</code> - check name availability</li>
+ *   <li><code>list</code> - list available services and categories</li>
+ * </ul>
+ *
+ * While technically part of the API, this is not expected to be used outside of this package as it's only intended use
+ * is by <code>bin/throne</code>.
  */
 class CLI {
 
@@ -101,9 +111,12 @@ class CLI {
   }
 
   /**
-   * TODO: Document
+   * Creates an instance of {@link CLI} using the <code>options</code> provided.
    *
-   * @param {CLI~Options} [options] -
+   * <code>options</code> is primarily intended for testing purposes and it's not expected to be supplied in any
+   * real-world scenario.
+   *
+   * @param {CLI~Options} [options] - the options to be used
    * @public
    */
   constructor(options) {
@@ -171,9 +184,11 @@ class CLI {
   }
 
   /**
-   * TODO: Document
+   * Parses the command-line (process) arguments provided and performs the necessary actions based on the parsed input.
    *
-   * @param {string|string[]} [args] -
+   * If no commands are invoked as a result, the help information will be printed as a guidance for the user.
+   *
+   * @param {string[]} [args] - the arguments to be parsed
    * @return {void}
    * @public
    */
@@ -181,8 +196,6 @@ class CLI {
     if (!args) {
       args = [];
     }
-
-    args = Array.isArray(args) ? args : [ args ];
 
     debug('Parsing arguments: %o', args);
 
@@ -311,9 +324,9 @@ class CLI {
 module.exports = CLI;
 
 /**
- * TODO: Document
+ * The options that can be passed to {@link CLI}.
  *
  * @typedef {Object} CLI~Options
- * @property {Writable} [errorStream=process.stderr] -
- * @property {Writable} [outputStream=process.stdout] -
+ * @property {Writable} [errorStream=process.stderr] - The stream for error messages to be written to.
+ * @property {Writable} [outputStream=process.stdout] - The stream for output messages to be written to.
  */
