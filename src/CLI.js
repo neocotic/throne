@@ -142,7 +142,11 @@ class CLI {
     const name = trim(command.args[0]).toLowerCase();
 
     if (command.list) {
-      this[_listServices]({ showStack: command.stack });
+      this[_listServices]({
+        categories: command.category,
+        services: command.service,
+        showStack: command.stack
+      });
     } else if (name) {
       this[_checkServices](name, {
         categories: command.category,
@@ -235,7 +239,7 @@ class CLI {
   [_listServices](options) {
     const throne = new Throne();
 
-    return throne.getServiceDescriptors()
+    return throne.list({ filter: CLI[_createFilter](options.categories, options.services) })
       .then((descriptors) => {
         const categorizedDescriptors = groupBy(descriptors, 'category');
         const categories = Object.keys(categorizedDescriptors).sort();

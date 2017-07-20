@@ -77,11 +77,18 @@ class Throne extends EventEmitter {
   /**
    * TODO: Document
    *
+   * @param {Throne~Options} [options] -
    * @return {Promise.<Error, Array.<Service~Descriptor>>}
    * @public
    */
-  getServiceDescriptors() {
-    return this[_serviceManager].get()
+  list(options) {
+    if (!options) {
+      options = {};
+    }
+
+    debug('Listing services and categories using options: %o', options);
+
+    return this[_serviceManager].get({ filter: options.filter })
       .then((services) => services.map((service) => service.descriptor));
   }
 
