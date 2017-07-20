@@ -113,13 +113,58 @@ class CLI {
     this[_errorStream] = options.errorStream || process.stderr;
     this[_outputStream] = options.outputStream || process.stdout;
     this[_command] = new Command()
-      .arguments('<name>')
       .version(pkg.version)
-      .option('-c, --category <name>', 'only check name for services in category', (c, list) => list.concat(c), [])
-      .option('-l, --list', 'list available services and categories')
-      .option('-s, --service <title>', 'only check name for service', (s, list) => list.concat(s), [])
-      .option('--stack', 'print stack traces for errors')
-      .option('-t, --timeout <ms>', 'control timeout for individual service checks', parseInt);
+      .option('-c, --category <name>', 'filter services by category name', (c, list) => list.concat(c), [])
+      .option('-s, --service <title>', 'filter service by title', (s, list) => list.concat(s), [])
+      .option('--stack', 'print stack traces for errors');
+
+    this[_command].command('check <name>')
+      .alias('chk')
+      .description('check name availability')
+      .option('-t, --timeout <ms>', 'control timeout for each check', parseInt)
+      .action((name, command) => {
+        name = trim(name).toLowerCase();
+
+        if (name) {
+          this[_checkServices](name, {
+            categories: this[_command].category,
+            services: this[_command].service,
+            showStack: this[_command].stack,
+            timeout: command.timeout
+          });
+        } else {
+          this[_command].help();
+        }
+      });
+
+    this[_command].command('help [cmd]')
+      .description('display help for [cmd]')
+      .action((cmd) => {
+        cmd = trim(cmd).toLowerCase();
+
+        if (cmd) {
+          const subCommand = this[_command].commands.find((command) => {
+            return command.name() === cmd || command.alias() === cmd;
+          });
+
+          if (subCommand) {
+            subCommand.help();
+          }
+        }
+
+        this[_command].help();
+      });
+
+    this[_command].command('list')
+      .alias('ls')
+      .description('list available services and categories')
+      .action(() => {
+        this[_listServices]({
+          categories: this[_command].category,
+          services: this[_command].service,
+          showStack: this[_command].stack
+        });
+      });
   }
 
   /**
@@ -138,26 +183,10 @@ class CLI {
 
     debug('Parsing arguments: %o', args);
 
-    const command = this[_command].parse(args);
-    const name = trim(command.args[0]).toLowerCase();
+    this[_command].parse(args);
 
-    if (command.list) {
-      this[_listServices]({
-        categories: command.category,
-        services: command.service,
-        showStack: command.stack
-      });
-    } else if (name) {
-      this[_checkServices](name, {
-        categories: command.category,
-        services: command.service,
-        showStack: command.stack,
-        timeout: command.timeout
-      });
-    } else {
-      command.outputHelp();
-
-      process.exit(0);
+    if (!this[_command].args.length) {
+      this[_command].help();
     }
   }
 
