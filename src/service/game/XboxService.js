@@ -28,14 +28,15 @@ const path = require('path');
 const HttpService = require('../HttpService');
 
 /**
- * TODO: Document
+ * An implementation of {@link HttpService} that checks whether the name is available on
+ * <a href="https://www.xbox.com">Xbox</a>.
  */
 class XboxService extends HttpService {
 
   /**
-   * TODO: Document
+   * Creates an instance of {@link XboxService} under the specified <code>category</code>.
    *
-   * @param {string} category -
+   * @param {string} category - the category to be used
    * @public
    */
   constructor(category) {
@@ -44,6 +45,7 @@ class XboxService extends HttpService {
 
   /**
    * @override
+   * @inheritDoc
    */
   checkResponse(name, response) {
     if (response.statusCode === 500) {
@@ -58,6 +60,7 @@ class XboxService extends HttpService {
 
   /**
    * @override
+   * @inheritDoc
    */
   getAcceptedStatusCodes() {
     return [ 200, 500 ];
@@ -65,6 +68,7 @@ class XboxService extends HttpService {
 
   /**
    * @override
+   * @inheritDoc
    */
   getRequestOptions(name) {
     return {
