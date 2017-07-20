@@ -44,7 +44,6 @@ const _outputStream = Symbol('outputStream');
 const _prepareSearchValue = Symbol('prepareSearchValue');
 const _printServiceStatus = Symbol('printServiceStatus');
 const _sanitizeForSearch = Symbol('sanitizeForSearch');
-const _throne = Symbol('throne');
 
 /**
  * TODO: Document
@@ -121,7 +120,6 @@ class CLI {
       .option('-s, --service <title>', 'only check name for service', (s, list) => list.concat(s), [])
       .option('--stack', 'print stack traces for errors')
       .option('-t, --timeout <ms>', 'control timeout for individual service checks', parseInt);
-    this[_throne] = new Throne();
   }
 
   /**
@@ -156,8 +154,9 @@ class CLI {
 
   [_checkServices](name, categories, services, stack, timeout) {
     let maxLength = 0;
+    const throne = new Throne();
 
-    this[_throne].addListener('check', (event) => {
+    throne.addListener('check', (event) => {
       this[_outputStream].write(`Checking availability of name: ${name}${EOL}${EOL}`);
 
       maxLength = event.services.reduce((acc, descriptor) => {
@@ -167,11 +166,11 @@ class CLI {
       debug('Calculated maximum length for service descriptor: %d', maxLength);
     });
 
-    this[_throne].addListener('checkservice', (event) => {
+    throne.addListener('checkservice', (event) => {
       this[_printServiceStatus](event, chalk.dim('CHECKING'), maxLength);
     });
 
-    this[_throne].addListener('result', (event) => {
+    throne.addListener('result', (event) => {
       let status;
       if (event.error) {
         status = chalk.red('FAILED');
@@ -192,7 +191,7 @@ class CLI {
       }
     });
 
-    this[_throne].addListener('report', (event) => {
+    throne.addListener('report', (event) => {
       this[_outputStream].write(`${EOL}${chalk.underline('Summary:')}${EOL}`);
       this[_outputStream].write(`Available on ${event.stats.available}/${event.stats.total} services${EOL}`);
       if (event.stats.failed) {
@@ -210,7 +209,7 @@ class CLI {
       }
     });
 
-    return this[_throne].check(name, { filter: CLI[_createFilter](categories, services), timeout })
+    return throne.check(name, { filter: CLI[_createFilter](categories, services), timeout })
       .then(() => {
         process.exit(0);
       })
@@ -226,7 +225,9 @@ class CLI {
   }
 
   [_listServices]() {
-    return this[_throne].getServiceDescriptors()
+    const throne = new Throne();
+
+    return throne.getServiceDescriptors()
       .then((descriptors) => {
         const categorizedDescriptors = groupBy(descriptors, 'category');
         const categories = Object.keys(categorizedDescriptors).sort();
