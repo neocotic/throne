@@ -54,7 +54,7 @@ class HttpService extends Service {
   /**
    * @override
    */
-  check(options) {
+  check(name, options) {
     return new Promise((resolve, reject) => {
       const requestHeaders = Object.assign({
         'cache-control': 'no-cache,no-store,must-revalidate,max-age=-1,private',
@@ -67,7 +67,7 @@ class HttpService extends Service {
         'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 ' +
           'Safari/537.36'
       });
-      const requestOptions = defaultsDeep({}, this.getRequestOptions(options.name), {
+      const requestOptions = defaultsDeep({}, this.getRequestOptions(name), {
         encoding: 'utf8',
         headers: requestHeaders,
         method: 'HEAD',
@@ -104,7 +104,7 @@ class HttpService extends Service {
             reject(new Error(message));
           } else {
             try {
-              const result = this.checkResponse(options.name, response);
+              const result = this.checkResponse(name, response);
 
               debug('%s service determined available from HTTP response: %s', this.descriptor.title, result);
 

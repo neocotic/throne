@@ -35,7 +35,7 @@ const _generateReport = Symbol('generateReport');
 const _serviceManager = Symbol('serviceManager');
 
 /**
- * Can check the availability of a name across many supported online services of varying categories.
+ * Can check the availability of a name across many supported services of varying categories.
  *
  * Services are loaded dynamically on-demand and cached to avoid unnecessary subsequent loads for each instance of
  * <code>Throne</code> so it's recommended to reuse the same instance to avoid performance issues.
@@ -127,7 +127,7 @@ class Throne extends EventEmitter {
      */
     this.emit('checkservice', Object.assign({ name }, descriptor));
 
-    return service.check({ name, timeout: options.timeout })
+    return service.check(name, { timeout: options.timeout })
       .then((available) => {
         const result = Object.assign({
           available,
