@@ -33,12 +33,17 @@ const _findServiceFiles = Symbol('findServiceFiles');
 const _services = Symbol('services');
 
 /**
- * TODO: Document
+ * Manages services that are loaded dynamically on-demand and cached to avoid unnecessary subsequent loads for each
+ * instance of <code>ServiceManager</code>. For this reason, it's recommended to reuse the same instance to avoid
+ * performance issues.
+ *
+ * Services are loaded from the <code>service</code> directory and the name of the sub-directories are used as the
+ * category name. This approach has been taken to simplify the addition of new services as much as possible.
  */
 class ServiceManager {
 
   /**
-   * TODO: Document
+   * Creates an instance of {@link ServiceManager}.
    *
    * @public
    */
@@ -47,10 +52,15 @@ class ServiceManager {
   }
 
   /**
-   * TODO: Document
+   * Provides all of the supported services using the <code>options</code> provided.
    *
-   * @param {ServiceManager~GetOptions} [options] -
-   * @return {Promise.<Error, Array.<Service>>}
+   * This method will automatically load the services if they have not previously been loaded.
+   *
+   * The <code>filter</code> option can be used to control which services are included in the result based on their
+   * descriptor.
+   *
+   * @param {ServiceManager~GetOptions} [options] - the options to be used
+   * @return {Promise.<Error, Array.<Service>>}  <code>Promise</code> for the supported services.
    * @public
    */
   get(options) {
@@ -69,9 +79,14 @@ class ServiceManager {
   }
 
   /**
-   * TODO: Document
+   * Finds and loads all {@link Service} implementations sorted by their category and title.
    *
-   * @return {Promise.<Error, Array.<Service>>}
+   * This method returns a <code>Promise</code> that is resolved with the list of all loaded services.
+   *
+   * If the services have already been loaded by this {@link ServiceManager} (and not unloaded), then this method will
+   * simply return them without attempting to load them again.
+   *
+   * @return {Promise.<Error, Array.<Service>>} A <code>Promise</code> for the loaded services.
    * @public
    */
   load() {
@@ -111,7 +126,10 @@ class ServiceManager {
   }
 
   /**
-   * TODO: Document
+   * Removes all previously loaded services (if any) from this {@link ServiceManager}.
+   *
+   * This method is primarily intended for testing purposes and it's not expected to be called in any real-world
+   * scenario.
    *
    * @return {void}
    * @public
@@ -139,16 +157,17 @@ class ServiceManager {
 module.exports = ServiceManager;
 
 /**
- * TODO: Document
+ * The options that can be passed to {@link ServiceManager#get}.
  *
- * @callback ServiceManager~ServiceFilter
- * @param {Service~Descriptor} descriptor -
- * @return {boolean}
+ * @typedef {Object} ServiceManager~GetOptions
+ * @property {ServiceManager~ServiceFilter} [filter] - The function to be used to filter which services are provided
+ * based on their descriptor. All services are provided by default.
  */
 
 /**
- * TODO: Document
+ * Returns whether the service, whose <code>descriptor</code> is provided, is to be included.
  *
- * @typedef {Object} ServiceManager~GetOptions
- * @property {ServiceManager~ServiceFilter} [filter] -
+ * @callback ServiceManager~ServiceFilter
+ * @param {Service~Descriptor} descriptor - the descriptor of the service to be checked
+ * @return {boolean} <code>true</code> to include the service; otherwise <code>false</code>.
  */
