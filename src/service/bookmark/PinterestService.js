@@ -62,7 +62,7 @@ class PinterestService extends HttpService {
    */
   getRequestOptions(name) {
     return {
-      uri: `https://www.pinterest.co.uk/${encodeURIComponent(name)}/`,
+      uri: `https://www.pinterest.com/${encodeURIComponent(name)}/`,
       followRedirect: false
     };
   }
