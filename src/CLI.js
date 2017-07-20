@@ -142,9 +142,14 @@ class CLI {
     const name = trim(command.args[0]).toLowerCase();
 
     if (command.list) {
-      this[_listServices]();
+      this[_listServices]({ showStack: command.stack });
     } else if (name) {
-      this[_checkServices](name, command.category, command.service, command.stack, command.timeout);
+      this[_checkServices](name, {
+        categories: command.category,
+        services: command.service,
+        showStack: command.stack,
+        timeout: command.timeout
+      });
     } else {
       command.outputHelp();
 
@@ -152,7 +157,7 @@ class CLI {
     }
   }
 
-  [_checkServices](name, categories, services, stack, timeout) {
+  [_checkServices](name, options) {
     let maxLength = 0;
     const throne = new Throne();
 
@@ -186,7 +191,7 @@ class CLI {
       this[_outputStream].cursorTo(0);
       this[_printServiceStatus](event, status, maxLength, true);
 
-      if (event.error && stack) {
+      if (event.error && options.showStack) {
         this[_errorStream].write(`${event.error.stack}${EOL}`);
       }
     });
@@ -197,7 +202,7 @@ class CLI {
       if (event.stats.failed) {
         this[_outputStream].write(`${event.stats.failed}/${event.stats.total} services failed!${EOL}`);
 
-        if (!stack) {
+        if (!options.showStack) {
           this[_outputStream].write(`Try again with the --stack option to print the full stack traces${EOL}`);
         }
       } else {
@@ -209,14 +214,17 @@ class CLI {
       }
     });
 
-    return throne.check(name, { filter: CLI[_createFilter](categories, services), timeout })
+    return throne.check(name, {
+      filter: CLI[_createFilter](options.categories, options.services),
+      timeout: options.timeout
+    })
       .then(() => {
         process.exit(0);
       })
       .catch((error) => {
-        this[_errorStream].write(`Throne failed: ${stack ? error.stack : error.message}${EOL}`);
+        this[_errorStream].write(`Throne failed: ${options.showStack ? error.stack : error.message}${EOL}`);
 
-        if (!stack) {
+        if (!options.showStack) {
           this[_outputStream].write(`Try again with the --stack option to print the full stack trace${EOL}`);
         }
 
@@ -224,7 +232,7 @@ class CLI {
       });
   }
 
-  [_listServices]() {
+  [_listServices](options) {
     const throne = new Throne();
 
     return throne.getServiceDescriptors()
@@ -246,7 +254,7 @@ class CLI {
         process.exit(0);
       })
       .catch((error) => {
-        this[_errorStream].write(`Throne failed: ${error.message}${EOL}`);
+        this[_errorStream].write(`Throne failed: ${options.showStack ? error.stack : error.message}${EOL}`);
 
         process.exit(1);
       });
