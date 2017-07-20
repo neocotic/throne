@@ -36,8 +36,8 @@ class Service {
    * Creates an instance of {@link Service} under the specified <code>category</code> and with the specified
    * <code>title</code>.
    *
-   * Implementations <b>must</b> override this constructor so that they only expose a single-argument constructor that
-   * only takes <code>category</code> while passing <code>title</code> internally.
+   * Implementations <b>must</b> override this constructor so that they expose a single-argument constructor that only
+   * takes <code>category</code> while passing <code>title</code> internally.
    *
    * @param {string} category - the category to be used
    * @param {string} title - the title to be used
