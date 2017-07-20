@@ -25,14 +25,15 @@
 const HttpService = require('../HttpService');
 
 /**
- * TODO: Document
+ * An implementation of {@link HttpService} that checks whether the name is available on
+ * <a href="https://storify.com">Storify</a>.
  */
 class StorifyService extends HttpService {
 
   /**
-   * TODO: Document
+   * Creates an instance of {@link StorifyService} under the specified <code>category</code>.
    *
-   * @param {string} category -
+   * @param {string} category - the category to be used
    * @public
    */
   constructor(category) {
@@ -41,6 +42,7 @@ class StorifyService extends HttpService {
 
   /**
    * @override
+   * @inheritDoc
    */
   getRequestOptions(name) {
     return { uri: `https://storify.com/${encodeURIComponent(name)}` };
