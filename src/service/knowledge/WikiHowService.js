@@ -25,14 +25,15 @@
 const HttpService = require('../HttpService');
 
 /**
- * TODO: Document
+ * An implementation of {@link HttpService} that checks whether the name is available on
+ * <a href="https://www.wikihow.com">wikiHow</a>.
  */
 class WikiHowService extends HttpService {
 
   /**
-   * TODO: Document
+   * Creates an instance of {@link WikiHowService} under the specified <code>category</code>.
    *
-   * @param {string} category -
+   * @param {string} category - the category to be used
    * @public
    */
   constructor(category) {
@@ -41,6 +42,7 @@ class WikiHowService extends HttpService {
 
   /**
    * @override
+   * @inheritDoc
    */
   checkResponse(name, response) {
     const searchStr = `<meta name="description" content="${name} is a wikihow editor.`;
@@ -49,6 +51,7 @@ class WikiHowService extends HttpService {
 
   /**
    * @override
+   * @inheritDoc
    */
   getRequestOptions(name) {
     return {
