@@ -45,8 +45,8 @@ class LiveJournalService extends HttpService {
    * @inheritDoc
    */
   checkResponse(name, response) {
-    // TODO: If 410, purchase may be required to obtain username. How best to report this scenario?
-    return response.statusCode !== 200;
+    const statusCode = response.statusCode;
+    return statusCode === 410 ? null : statusCode === 404;
   }
 
   /**
