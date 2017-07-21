@@ -25,14 +25,15 @@
 const HttpService = require('../HttpService');
 
 /**
- * TODO: Document
+ * An implementation of {@link HttpService} that checks whether the name is available on
+ * <a href="https://www.roblox.com">Roblox</a>.
  */
 class RobloxService extends HttpService {
 
   /**
-   * TODO: Document
+   * Creates an instance of {@link RobloxService} under the specified <code>category</code>.
    *
-   * @param {string} category -
+   * @param {string} category - the category to be used
    * @public
    */
   constructor(category) {
@@ -41,6 +42,7 @@ class RobloxService extends HttpService {
 
   /**
    * @override
+   * @inheritDoc
    */
   checkResponse(name, response) {
     return !JSON.parse(response.body).UserSearchResults.some((result) => result.Name === name);
@@ -48,6 +50,7 @@ class RobloxService extends HttpService {
 
   /**
    * @override
+   * @inheritDoc
    */
   getAcceptedStatusCodes() {
     return [ 200 ];
@@ -55,6 +58,7 @@ class RobloxService extends HttpService {
 
   /**
    * @override
+   * @inheritDoc
    */
   getRequestOptions(name) {
     return {

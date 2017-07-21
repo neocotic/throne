@@ -25,14 +25,15 @@
 const HttpService = require('../HttpService');
 
 /**
- * TODO: Document
+ * An implementation of {@link HttpService} that checks whether the name is available on
+ * <a href="https://sourceforge.net">SourceForge</a>.
  */
 class SourceForgeService extends HttpService {
 
   /**
-   * TODO: Document
+   * Creates an instance of {@link SourceForgeService} under the specified <code>category</code>.
    *
-   * @param {string} category -
+   * @param {string} category - the category to be used
    * @public
    */
   constructor(category) {
@@ -41,6 +42,7 @@ class SourceForgeService extends HttpService {
 
   /**
    * @override
+   * @inheritDoc
    */
   getRequestOptions(name) {
     return { uri: `https://sourceforge.net/u/${encodeURIComponent(name)}/profile` };

@@ -25,14 +25,15 @@
 const HttpService = require('../HttpService');
 
 /**
- * TODO: Document
+ * An implementation of {@link HttpService} that checks whether the name is available on
+ * <a href="https://steamcommunity.com">Steam</a>.
  */
 class SteamService extends HttpService {
 
   /**
-   * TODO: Document
+   * Creates an instance of {@link SteamService} under the specified <code>category</code>.
    *
-   * @param {string} category -
+   * @param {string} category - the category to be used
    * @public
    */
   constructor(category) {
@@ -41,6 +42,7 @@ class SteamService extends HttpService {
 
   /**
    * @override
+   * @inheritDoc
    */
   checkResponse(name, response) {
     return response.body.indexOf('<title>Steam Community :: Error</title>') !== -1;
@@ -48,6 +50,7 @@ class SteamService extends HttpService {
 
   /**
    * @override
+   * @inheritDoc
    */
   getAcceptedStatusCodes() {
     return [ 200 ];
@@ -55,6 +58,7 @@ class SteamService extends HttpService {
 
   /**
    * @override
+   * @inheritDoc
    */
   getRequestOptions(name) {
     return {

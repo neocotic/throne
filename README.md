@@ -17,8 +17,8 @@ availability across multiple services.
 [![Release](https://img.shields.io/npm/v/throne.svg?style=flat-square)](https://www.npmjs.com/package/throne)
 
 * [Install](#install)
-* [API](#api)
 * [CLI](#cli)
+* [API](#api)
 * [Bugs](#bugs)
 * [Contributors](#contributors)
 * [License](#license)
@@ -40,13 +40,127 @@ that you can run `throne` from anywhere:
 $ npm install --global throne
 ```
 
-## API
-
-TODO: Document
-
 ## CLI
 
-TODO: Document
+    Usage: throne [options] [command]
+  
+  
+    Options:
+  
+      -V, --version          output the version number
+      -c, --category <name>  filter services by category name
+      -d, --debug            enable debug level logging
+      -s, --service <title>  filter service by title
+      --stack                print stack traces for errors
+      -h, --help             output usage information
+  
+  
+    Commands:
+  
+      check|chk [options] <name>  check name availability
+      help [cmd]                  display help for [cmd]
+      list|ls                     list available services and categories
+
+The command line interface is the primary intended use for Throne and it's designed to be extremely simple. However,
+there's a few pointers that can really be helpful:
+
+1. You can filter multiple services and/or categories at once:
+    ``` bash
+    # Only check services in mail & social categories
+    $ throne check -c mail -c social neocotic
+    # Only check specific services
+    $ throne check -s bitbucket -s github -s gitlab neocotic
+    ```
+2. You can even exclude multiple services and/or categories at once by using a colon prefix:
+    ``` bash
+    # Only check services in all categories except health
+    $ throne check -c :health neocotic
+    # Only check services in social category except LinkedIn 
+    $ throne check -c social -s :linkedin neocotic
+    ```
+3. You don't have to be too precise when targeting services for filtering as all non-alphanumeric (incl. whitespace)
+characters are ignored, which means the following have the same result:
+    ``` bash
+    $ throne check -s getsatisfcation neocotic 
+    $ throne check -s "Get Satisfaction" neocotic
+    ```
+
+## API
+
+While most of you will be using Throne via its CLI, the API can also be used and is designed to be just as simple to
+use. It uses ECMAScript 2015's promises to handle the asynchronous flow:
+
+``` javascript
+const throne = require('throne');
+
+throne.check('neocotic')
+  .then((report) => {
+    if (report.status.failed) {
+      console.error(`${report.status.failed} checks failed!`);
+    }
+    
+    console.log(report.stats.available === report.stats.total);
+  });
+```
+
+It's best to take a look at the code and or inspect the results yourself to see all of the information available.
+
+### `check(name[, options])`
+
+Checks the availability of the specified `name` across all supported services using the `options` provided.
+
+`name` is trimmed and transformed into lower case before being checked by any service.
+
+This method returns a `Promise` that is resolved with a report once all services have been checked. However, progress
+can be monitored by listening to events that are emitted by `throne`.
+
+#### Options
+
+| Option    | Description                                                                        | Default |
+| --------- | ---------------------------------------------------------------------------------- | ------- |
+| `filter`  | Function to be used to filter which services are checked based on their descriptor | *All*   |
+| `timeout` | Timeout to be applied to each individual service check (in milliseconds)           | *None*  |
+
+#### Events
+
+| Event          | Description                                                                                                         |
+| -------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `check`        | Fired once the services have been loaded (and potentially filtered) but before any services are checked             |
+| `checkservice` | Fired immediately before a service is checked                                                                       |
+| `result`       | Fired immediately after a service is checked along with its findings                                                |
+| `report`       | Fired once all services have been checked along with a report containing all of their findings, including a summary |
+
+#### Examples
+
+``` javascript
+throne.check('neocotic', { timeout: 5000, filter: (descriptor) => descriptor.category === 'tech' })
+  .then((report) => {
+    if (report.status.failed) {
+      console.error(`${report.status.failed} checks failed!`);
+    } else {
+      console.log(`Unique: ${report.unique ? 'Yes' : 'No'}`);
+    }
+  });
+```
+
+### `list([options])`
+
+Provides the list of all supported services using the `options` provided.
+
+#### Options
+
+| Option    | Description                                                                         | Default |
+| --------- | ----------------------------------------------------------------------------------- | ------- |
+| `filter`  | Function to be used to filter which services are provided based on their descriptor | *All*   |
+
+#### Examples
+
+``` javascript
+throne.list({ filter: (descriptor) => descriptor.category === 'social' })
+  .then((descriptors) => {
+    console.log(descriptors.map((descriptor) => descriptor.title).join(','));
+  });
+```
 
 ## Bugs
 

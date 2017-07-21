@@ -25,14 +25,15 @@
 const HttpService = require('../HttpService');
 
 /**
- * TODO: Document
+ * An implementation of {@link HttpService} that checks whether the name is available on
+ * <a href="https://www.kickstarter.com">Kickstarter</a>.
  */
 class KickstarterService extends HttpService {
 
   /**
-   * TODO: Document
+   * Creates an instance of {@link KickstarterService} under the specified <code>category</code>.
    *
-   * @param {string} category -
+   * @param {string} category - the category to be used
    * @public
    */
   constructor(category) {
@@ -41,6 +42,7 @@ class KickstarterService extends HttpService {
 
   /**
    * @override
+   * @inheritDoc
    */
   getRequestOptions(name) {
     return { uri: `https://www.kickstarter.com/profile/${encodeURIComponent(name)}` };

@@ -25,14 +25,15 @@
 const HttpService = require('../HttpService');
 
 /**
- * TODO: Document
+ * An implementation of {@link HttpService} that checks whether the name is available on
+ * <a href="https://soundcloud.com">SoundCloud</a>.
  */
 class SoundCloudService extends HttpService {
 
   /**
-   * TODO: Document
+   * Creates an instance of {@link SoundCloudService} under the specified <code>category</code>.
    *
-   * @param {string} category -
+   * @param {string} category - the category to be used
    * @public
    */
   constructor(category) {
@@ -41,6 +42,7 @@ class SoundCloudService extends HttpService {
 
   /**
    * @override
+   * @inheritDoc
    */
   getRequestOptions(name) {
     return { uri: `https://soundcloud.com/${encodeURIComponent(name)}` };

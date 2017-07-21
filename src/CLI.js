@@ -26,7 +26,8 @@
 
 const chalk = require('chalk');
 const Command = require('commander').Command;
-const debug = require('debug')('throne:cli');
+const debugModule = require('debug');
+const debug = debugModule('throne:cli');
 const EOL = require('os').EOL;
 const groupBy = require('lodash.groupby');
 const rightPad = require('right-pad');
@@ -44,10 +45,19 @@ const _outputStream = Symbol('outputStream');
 const _prepareSearchValue = Symbol('prepareSearchValue');
 const _printServiceStatus = Symbol('printServiceStatus');
 const _sanitizeForSearch = Symbol('sanitizeForSearch');
-const _throne = Symbol('throne');
 
 /**
- * TODO: Document
+ * The command-line interface for {@link Throne}.
+ *
+ * This CLI supports the following commands:
+ *
+ * <ul>
+ *   <li><code>check &lt;name&gt;</code> - check name availability</li>
+ *   <li><code>list</code> - list available services and categories</li>
+ * </ul>
+ *
+ * While technically part of the API, this is not expected to be used outside of this package as it's only intended use
+ * is by <code>bin/throne</code>.
  */
 class CLI {
 
@@ -101,9 +111,12 @@ class CLI {
   }
 
   /**
-   * TODO: Document
+   * Creates an instance of {@link CLI} using the <code>options</code> provided.
    *
-   * @param {CLI~Options} [options] -
+   * <code>options</code> is primarily intended for testing purposes and it's not expected to be supplied in any
+   * real-world scenario.
+   *
+   * @param {CLI~Options} [options] - the options to be used
    * @public
    */
   constructor(options) {
@@ -114,20 +127,68 @@ class CLI {
     this[_errorStream] = options.errorStream || process.stderr;
     this[_outputStream] = options.outputStream || process.stdout;
     this[_command] = new Command()
-      .arguments('<name>')
       .version(pkg.version)
-      .option('-c, --category <name>', 'only check name for services in category', (c, list) => list.concat(c), [])
-      .option('-l, --list', 'list available services and categories')
-      .option('-s, --service <title>', 'only check name for service', (s, list) => list.concat(s), [])
+      .option('-c, --category <name>', 'filter services by category name', (c, list) => list.concat(c), [])
+      .option('-d, --debug', 'enable debug level logging')
+      .option('-s, --service <title>', 'filter service by title', (s, list) => list.concat(s), [])
       .option('--stack', 'print stack traces for errors')
-      .option('-t, --timeout <ms>', 'control timeout for individual service checks', parseInt);
-    this[_throne] = new Throne();
+      .on('option:debug', () => debugModule.enable('*'));
+
+    this[_command].command('check <name>')
+      .alias('chk')
+      .description('check name availability')
+      .option('-t, --timeout <ms>', 'control timeout for each check', parseInt)
+      .action((name, command) => {
+        name = trim(name).toLowerCase();
+
+        if (name) {
+          this[_checkServices](name, {
+            categories: this[_command].category,
+            services: this[_command].service,
+            showStack: this[_command].stack,
+            timeout: command.timeout
+          });
+        } else {
+          this[_command].help();
+        }
+      });
+
+    this[_command].command('help [cmd]')
+      .description('display help for [cmd]')
+      .action((cmd) => {
+        cmd = trim(cmd).toLowerCase();
+
+        if (cmd) {
+          const subCommand = this[_command].commands.find((command) => {
+            return command.name() === cmd || command.alias() === cmd;
+          });
+
+          if (subCommand) {
+            subCommand.help();
+          }
+        }
+
+        this[_command].help();
+      });
+
+    this[_command].command('list')
+      .alias('ls')
+      .description('list available services and categories')
+      .action(() => {
+        this[_listServices]({
+          categories: this[_command].category,
+          services: this[_command].service,
+          showStack: this[_command].stack
+        });
+      });
   }
 
   /**
-   * TODO: Document
+   * Parses the command-line (process) arguments provided and performs the necessary actions based on the parsed input.
    *
-   * @param {string|string[]} [args] -
+   * If no commands are invoked as a result, the help information will be printed as a guidance for the user.
+   *
+   * @param {string[]} [args] - the arguments to be parsed
    * @return {void}
    * @public
    */
@@ -136,28 +197,20 @@ class CLI {
       args = [];
     }
 
-    args = Array.isArray(args) ? args : [ args ];
-
     debug('Parsing arguments: %o', args);
 
-    const command = this[_command].parse(args);
-    const name = trim(command.args[0]).toLowerCase();
+    this[_command].parse(args);
 
-    if (command.list) {
-      this[_listServices]();
-    } else if (name) {
-      this[_checkServices](name, command.category, command.service, command.stack, command.timeout);
-    } else {
-      command.outputHelp();
-
-      process.exit(0);
+    if (!this[_command].args.length) {
+      this[_command].help();
     }
   }
 
-  [_checkServices](name, categories, services, stack, timeout) {
+  [_checkServices](name, options) {
     let maxLength = 0;
+    const throne = new Throne();
 
-    this[_throne].addListener('check', (event) => {
+    throne.addListener('check', (event) => {
       this[_outputStream].write(`Checking availability of name: ${name}${EOL}${EOL}`);
 
       maxLength = event.services.reduce((acc, descriptor) => {
@@ -167,11 +220,11 @@ class CLI {
       debug('Calculated maximum length for service descriptor: %d', maxLength);
     });
 
-    this[_throne].addListener('checkservice', (event) => {
+    throne.addListener('checkservice', (event) => {
       this[_printServiceStatus](event, chalk.dim('CHECKING'), maxLength);
     });
 
-    this[_throne].addListener('result', (event) => {
+    throne.addListener('result', (event) => {
       let status;
       if (event.error) {
         status = chalk.red('FAILED');
@@ -187,18 +240,18 @@ class CLI {
       this[_outputStream].cursorTo(0);
       this[_printServiceStatus](event, status, maxLength, true);
 
-      if (event.error && stack) {
+      if (event.error && options.showStack) {
         this[_errorStream].write(`${event.error.stack}${EOL}`);
       }
     });
 
-    this[_throne].addListener('report', (event) => {
+    throne.addListener('report', (event) => {
       this[_outputStream].write(`${EOL}${chalk.underline('Summary:')}${EOL}`);
       this[_outputStream].write(`Available on ${event.stats.available}/${event.stats.total} services${EOL}`);
       if (event.stats.failed) {
         this[_outputStream].write(`${event.stats.failed}/${event.stats.total} services failed!${EOL}`);
 
-        if (!stack) {
+        if (!options.showStack) {
           this[_outputStream].write(`Try again with the --stack option to print the full stack traces${EOL}`);
         }
       } else {
@@ -210,14 +263,17 @@ class CLI {
       }
     });
 
-    return this[_throne].check(name, { filter: CLI[_createFilter](categories, services), timeout })
+    return throne.check(name, {
+      filter: CLI[_createFilter](options.categories, options.services),
+      timeout: options.timeout
+    })
       .then(() => {
         process.exit(0);
       })
       .catch((error) => {
-        this[_errorStream].write(`Throne failed: ${stack ? error.stack : error.message}${EOL}`);
+        this[_errorStream].write(`Throne failed: ${options.showStack ? error.stack : error.message}${EOL}`);
 
-        if (!stack) {
+        if (!options.showStack) {
           this[_outputStream].write(`Try again with the --stack option to print the full stack trace${EOL}`);
         }
 
@@ -225,8 +281,10 @@ class CLI {
       });
   }
 
-  [_listServices]() {
-    return this[_throne].getServiceDescriptors()
+  [_listServices](options) {
+    const throne = new Throne();
+
+    return throne.list({ filter: CLI[_createFilter](options.categories, options.services) })
       .then((descriptors) => {
         const categorizedDescriptors = groupBy(descriptors, 'category');
         const categories = Object.keys(categorizedDescriptors).sort();
@@ -245,7 +303,7 @@ class CLI {
         process.exit(0);
       })
       .catch((error) => {
-        this[_errorStream].write(`Throne failed: ${error.message}${EOL}`);
+        this[_errorStream].write(`Throne failed: ${options.showStack ? error.stack : error.message}${EOL}`);
 
         process.exit(1);
       });
@@ -266,9 +324,9 @@ class CLI {
 module.exports = CLI;
 
 /**
- * TODO: Document
+ * The options that can be passed to {@link CLI}.
  *
  * @typedef {Object} CLI~Options
- * @property {Writable} [errorStream=process.stderr] -
- * @property {Writable} [outputStream=process.stdout] -
+ * @property {Writable} [errorStream=process.stderr] - The stream for error messages to be written to.
+ * @property {Writable} [outputStream=process.stdout] - The stream for output messages to be written to.
  */

@@ -26,18 +26,18 @@ const HttpService = require('../HttpService');
 
 /**
  * An implementation of {@link HttpService} that checks whether the name is available on
- * <a href="https://medium.com">Medium</a>.
+ * <a href="https://jsfiddle.net">JSFiddle</a>.
  */
-class MediumService extends HttpService {
+class JSFiddleService extends HttpService {
 
   /**
-   * Creates an instance of {@link MediumService} under the specified <code>category</code>.
+   * Creates an instance of {@link JSFiddleService} under the specified <code>category</code>.
    *
    * @param {string} category - the category to be used
    * @public
    */
   constructor(category) {
-    super(category, 'Medium');
+    super(category, 'JSFiddle');
   }
 
   /**
@@ -45,9 +45,9 @@ class MediumService extends HttpService {
    * @inheritDoc
    */
   getRequestOptions(name) {
-    return { uri: `https://medium.com/@${encodeURIComponent(name)}` };
+    return { uri: `https://jsfiddle.net/user/${encodeURIComponent(name)}/` };
   }
 
 }
 
-module.exports = MediumService;
+module.exports = JSFiddleService;

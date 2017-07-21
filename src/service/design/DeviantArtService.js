@@ -27,14 +27,15 @@ const HttpService = require('../HttpService');
 // FIXME: Currently returns false positive for deactivated accounts
 
 /**
- * TODO: Document
+ * An implementation of {@link HttpService} that checks whether the name is available on
+ * <a href="http://deviantart.com">DeviantArt</a>.
  */
 class DeviantArtService extends HttpService {
 
   /**
-   * TODO: Document
+   * Creates an instance of {@link DeviantArtService} under the specified <code>category</code>.
    *
-   * @param {string} category -
+   * @param {string} category - the category to be used
    * @public
    */
   constructor(category) {
@@ -43,6 +44,7 @@ class DeviantArtService extends HttpService {
 
   /**
    * @override
+   * @inheritDoc
    */
   getRequestOptions(name) {
     return {

@@ -25,14 +25,15 @@
 const HttpService = require('../HttpService');
 
 /**
- * TODO: Document
+ * An implementation of {@link HttpService} that checks whether the name is available on
+ * <a href="https://www.last.fm">Last.fm</a>.
  */
 class LastFMService extends HttpService {
 
   /**
-   * TODO: Document
+   * Creates an instance of {@link LastFMService} under the specified <code>category</code>.
    *
-   * @param {string} category -
+   * @param {string} category - the category to be used
    * @public
    */
   constructor(category) {
@@ -41,6 +42,7 @@ class LastFMService extends HttpService {
 
   /**
    * @override
+   * @inheritDoc
    */
   getRequestOptions(name) {
     return { uri: `https://www.last.fm/user/${encodeURIComponent(name)}` };

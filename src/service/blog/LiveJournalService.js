@@ -25,14 +25,15 @@
 const HttpService = require('../HttpService');
 
 /**
- * TODO: Document
+ * An implementation of {@link HttpService} that checks whether the name is available on
+ * <a href="http://livejournal.com">LiveJournal</a>.
  */
 class LiveJournalService extends HttpService {
 
   /**
-   * TODO: Document
+   * Creates an instance of {@link LiveJournalService} under the specified <code>category</code>.
    *
-   * @param {string} category -
+   * @param {string} category - the category to be used
    * @public
    */
   constructor(category) {
@@ -41,14 +42,16 @@ class LiveJournalService extends HttpService {
 
   /**
    * @override
+   * @inheritDoc
    */
   checkResponse(name, response) {
-    // TODO: If 410, purchase may be required to obtain username. How best to report this scenario?
-    return response.statusCode !== 200;
+    const statusCode = response.statusCode;
+    return statusCode === 410 ? null : statusCode === 404;
   }
 
   /**
    * @override
+   * @inheritDoc
    */
   getAcceptedStatusCodes() {
     return [ 200, 404, 410 ];
@@ -56,6 +59,7 @@ class LiveJournalService extends HttpService {
 
   /**
    * @override
+   * @inheritDoc
    */
   getRequestOptions(name) {
     return { uri: `http://@${encodeURIComponent(name)}.livejournal.com` };

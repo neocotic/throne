@@ -25,14 +25,15 @@
 const HttpService = require('../HttpService');
 
 /**
- * TODO: Document
+ * An implementation of {@link HttpService} that checks whether the name is available on
+ * <a href="https://500px.com">500px</a>.
  */
 class FiveHundredPxService extends HttpService {
 
   /**
-   * TODO: Document
+   * Creates an instance of {@link FiveHundredPxService} under the specified <code>category</code>.
    *
-   * @param {string} category -
+   * @param {string} category - the category to be used
    * @public
    */
   constructor(category) {
@@ -41,6 +42,7 @@ class FiveHundredPxService extends HttpService {
 
   /**
    * @override
+   * @inheritDoc
    */
   getRequestOptions(name) {
     return { uri: `https://500px.com/${encodeURIComponent(name)}` };

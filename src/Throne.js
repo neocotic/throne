@@ -35,12 +35,15 @@ const _generateReport = Symbol('generateReport');
 const _serviceManager = Symbol('serviceManager');
 
 /**
- * TODO: Document
+ * Can check the availability of a name across many supported services of varying categories.
+ *
+ * Services are loaded dynamically on-demand and cached to avoid unnecessary subsequent loads for each instance of
+ * <code>Throne</code> so it's recommended to reuse the same instance to avoid performance issues.
  */
 class Throne extends EventEmitter {
 
   /**
-   * TODO: Document
+   * Creates an instance of {@link Throne}.
    *
    * @public
    */
@@ -53,11 +56,24 @@ class Throne extends EventEmitter {
   }
 
   /**
-   * TODO: Document
+   * Checks the availability of the specified <code>name</code> across all supported services using the
+   * <code>options</code> provided.
    *
-   * @param {string} name -
-   * @param {Throne~Options} [options] -
-   * @return {Promise.<Error, Throne~Report>}
+   * <code>name</code> is trimmed and transformed into lower case before being checked by any service.
+   *
+   * The <code>filter</code> option can be used to control the services in which <code>name</code> is to be checked
+   * based on their descriptor.
+   *
+   * This method returns a <code>Promise</code> that is resolved with a report once all services have been checked.
+   * However, progress can be monitored by listening to events that are emitted by this {@link Throne}.
+   *
+   * @param {string} name - the name to be checked
+   * @param {Throne~CheckOptions} [options] - the options to be used
+   * @return {Promise.<Error, Throne~Report>} A <code>Promise</code> for the report generated for all of the results.
+   * @fires Throne#check
+   * @fires Throne#checkservice
+   * @fires Throne#report
+   * @fires Throne#result
    * @public
    */
   check(name, options) {
@@ -75,13 +91,23 @@ class Throne extends EventEmitter {
   }
 
   /**
-   * TODO: Document
+   * Provides the list of all supported services using the <code>options</code> provided.
    *
-   * @return {Promise.<Error, Array.<Service~Descriptor>>}
+   * The <code>filter</code> option can be used to control which services are included in the result based on their
+   * descriptor.
+   *
+   * @param {Throne~ListOptions} [options] - the options to be used
+   * @return {Promise.<Error, Array.<Service~Descriptor>>} A <code>Promise</code> for the supported service descriptors.
    * @public
    */
-  getServiceDescriptors() {
-    return this[_serviceManager].get()
+  list(options) {
+    if (!options) {
+      options = {};
+    }
+
+    debug('Listing services and categories using options: %o', options);
+
+    return this[_serviceManager].get({ filter: options.filter })
       .then((services) => services.map((service) => service.descriptor));
   }
 
@@ -90,9 +116,18 @@ class Throne extends EventEmitter {
 
     debug('Checking "%s" using %s service under %s category', name, descriptor.title, descriptor.category);
 
+    /**
+     * The "checkservice" event is fired immediately before a service is checked.
+     *
+     * @event Throne#checkservice
+     * @type {Object}
+     * @property {string} category - The category to which the service belongs.
+     * @property {string} name - The name to be checked.
+     * @property {string} title - The title of the service.
+     */
     this.emit('checkservice', Object.assign({ name }, descriptor));
 
-    return service.check({ name, timeout: options.timeout })
+    return service.check(name, { timeout: options.timeout })
       .then((available) => {
         const result = Object.assign({
           available,
@@ -101,8 +136,6 @@ class Throne extends EventEmitter {
         }, descriptor);
 
         debug('Check succeeded for "%s" using %s service: %o', name, descriptor.title, result);
-
-        this.emit('result', result);
 
         return result;
       })
@@ -115,6 +148,15 @@ class Throne extends EventEmitter {
 
         debug('Check failed for "%s" using %s service: %o', name, descriptor.title, result);
 
+        return result;
+      })
+      .then((result) => {
+        /**
+         * The "result" event is fired immediately after a service is checked along with its findings.
+         *
+         * @event Throne#result
+         * @type {Throne~Result}
+         */
         this.emit('result', result);
 
         return result;
@@ -126,6 +168,15 @@ class Throne extends EventEmitter {
       return Promise.reject(new Error('No services found'));
     }
 
+    /**
+     * The "check" event is fired once the services have been loaded (and potentially filtered) but before any services
+     * are checked.
+     *
+     * @event Throne#check
+     * @type {Object}
+     * @property {string} name - The name to be checked.
+     * @property {Service~Descriptor[]} services - The descriptors for all services to be checked.
+     */
     this.emit('check', {
       name,
       services: services.map((service) => service.descriptor)
@@ -180,6 +231,13 @@ class Throne extends EventEmitter {
 
     debug('Report generated for "%s": %o', name, report);
 
+    /**
+     * The "report" event is fired once all services have been checked along with a report containing all of their
+     * findings, including a summary.
+     *
+     * @event Throne#report
+     * @type {Throne~Report}
+     */
     this.emit('report', report);
 
     return report;
@@ -190,52 +248,49 @@ class Throne extends EventEmitter {
 module.exports = Throne;
 
 /**
- * TODO: Document
+ * The options that can be passed to {@link Throne#check}.
  *
- * @typedef {Object} Throne~CheckEvent
- * @property {string} name -
- * @property {Service~Descriptor[]} services -
+ * @typedef {Object} Throne~CheckOptions
+ * @property {ServiceManager~ServiceFilter} [filter] - The function to be used to filter which services are checked
+ * based on their descriptor. All services are checked by default.
+ * @property {number} [timeout] - The timeout to be applied to each individual service check (in milliseconds). No
+ * timeout is applied by default.
  */
 
 /**
- * TODO: Document
+ * The options that can be passed to {@link Throne#list}.
  *
- * @typedef {Object} Throne~CheckServiceEvent
- * @property {string} category -
- * @property {string} name -
- * @property {string} title -
+ * @typedef {Object} Throne~ListOptions
+ * @property {ServiceManager~ServiceFilter} [filter] - The function to be used to filter which services are provided
+ * based on their descriptor. All services are provided by default.
  */
 
 /**
- * TODO: Document
- *
- * @typedef {Object} Throne~Options
- * @property {ServiceManager~ServiceFilter} [filter] -
- * @property {number} [timeout] -
- */
-
-/**
- * TODO: Document
+ * Contains a summary report of the all service checks.
  *
  * @typedef {Object} Throne~Report
- * @property {Object} stats -
- * @property {number} stats.available -
- * @property {number} stats.failed -
- * @property {number} stats.passed -
- * @property {number} stats.total -
- * @property {number} stats.unavailable -
- * @property {string} name -
- * @property {Throne~Result[]} results -
- * @property {?boolean} unique -
+ * @property {Object} stats - A statistical summary of all service check findings.
+ * @property {number} stats.available - The number of services on which the name is available.
+ * @property {number} stats.failed - The number of services that whose check failed.
+ * @property {number} stats.passed - The number of services that whose check passed.
+ * @property {number} stats.total - The number of services that were checked.
+ * @property {number} stats.unavailable - The number of services on which the name is unavailable.
+ * @property {string} name - The name that was checked.
+ * @property {Throne~Result[]} results - The results for each individual service check.
+ * @property {?boolean} unique - <code>true</code> if the name is available on all services that were checked and
+ * <code>false</code> if it was not (will be <code>null</code> if an error occurred during any of the service checks).
  */
 
 /**
- * TODO: Document
+ * Contains the result of an individual service check.
  *
  * @typedef {Object} Throne~Result
- * @property {?boolean} available -
- * @property {string} category -
- * @property {?Error} error -
- * @property {string} name -
- * @property {string} title -
+ * @property {?boolean} available - <code>true</code> if the name is available on the service and <code>false</code> if
+ * it's not (may be <code>null</code> if the service was uncertain whether the name was available or if there was an
+ * error, so ensure that <code>error</code> is also checked for clarification).
+ * @property {string} category - The category to which the service belongs.
+ * @property {?Error} error - Any error that occurred while the checking the service (will be <code>null</code> if no
+ * error occurred).
+ * @property {string} name - The name that was checked.
+ * @property {string} title - The title of the service.
  */

@@ -28,15 +28,19 @@ const _category = Symbol('category');
 const _title = Symbol('title');
 
 /**
- * TODO: Document
+ * Can check the availability of a name on a specific service.
  */
 class Service {
 
   /**
-   * TODO: Document
+   * Creates an instance of {@link Service} under the specified <code>category</code> and with the specified
+   * <code>title</code>.
    *
-   * @param {string} category -
-   * @param {string} title -
+   * Implementations <b>must</b> override this constructor so that they expose a single-argument constructor that only
+   * takes <code>category</code> while passing <code>title</code> internally.
+   *
+   * @param {string} category - the category to be used
+   * @param {string} title - the title to be used
    * @protected
    */
   constructor(category, title) {
@@ -45,21 +49,29 @@ class Service {
   }
 
   /**
-   * TODO: Document
+   * Checks the availability of the specified <code>name</code> on this {@link Service} using the <code>options</code>
+   * provided.
    *
-   * @param {Service~CheckOptions} options -
-   * @return {Promise.<Error, ?boolean>}
+   * This method returns a <code>Promise</code> that is resolved with whether <code>name</code> is available on this
+   * {@link Service}, however, this indicator may be <code>null</code> if it's uncertain whether <code>name</code> is
+   * available.
+   *
+   * Implementations <b>must</b> override this method to implement the necessary logic to check availability.
+   *
+   * @param {string} name - the name to be checked
+   * @param {Service~CheckOptions} options - the options to be used
+   * @return {Promise.<Error, ?boolean>} A <code>Promise</code> for whether <code>name</code> is available.
    * @public
    * @abstract
    */
-  check(options) {
+  check(name, options) {
     pollock(Service, 'check');
   }
 
   /**
-   * TODO: Document
+   * Returns the descriptor for this {@link Service}.
    *
-   * @return {Service~Descriptor}
+   * @return {Service~Descriptor} The descriptor.
    * @public
    */
   get descriptor() {
@@ -74,17 +86,18 @@ class Service {
 module.exports = Service;
 
 /**
- * TODO: Document
+ * Describes an individual service.
  *
  * @typedef {Object} Service~Descriptor
- * @property {string} category -
- * @property {string} title -
+ * @property {string} category - The category to which the service belongs.
+ * @property {string} title - The title of the service.
  */
 
 /**
- * TODO: Document
+ * The options that can be passed to {@link Service#check}.
  *
  * @typedef Service~CheckOptions
- * @property {string} name -
- * @property {number} timeout -
+ * @property {string} name - The name to be checked.
+ * @property {?number} timeout - The timeout to be applied to the check (in milliseconds - will be <code>null</code> if
+ * no timeout is to be applied).
  */

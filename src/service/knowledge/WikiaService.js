@@ -25,14 +25,15 @@
 const HttpService = require('../HttpService');
 
 /**
- * TODO: Document
+ * An implementation of {@link HttpService} that checks whether the name is available on
+ * <a href="https://www.wikia.com">Wikia</a>.
  */
 class WikiaService extends HttpService {
 
   /**
-   * TODO: Document
+   * Creates an instance of {@link WikiaService} under the specified <code>category</code>.
    *
-   * @param {string} category -
+   * @param {string} category - the category to be used
    * @public
    */
   constructor(category) {
@@ -41,6 +42,7 @@ class WikiaService extends HttpService {
 
   /**
    * @override
+   * @inheritDoc
    */
   checkResponse(name, response) {
     const searchStr = `user account "${name}" does not exist or has never logged in on this wiki.`;
@@ -49,6 +51,7 @@ class WikiaService extends HttpService {
 
   /**
    * @override
+   * @inheritDoc
    */
   getRequestOptions(name) {
     return {

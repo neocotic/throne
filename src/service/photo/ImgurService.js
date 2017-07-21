@@ -25,14 +25,15 @@
 const HttpService = require('../HttpService');
 
 /**
- * TODO: Document
+ * An implementation of {@link HttpService} that checks whether the name is available on
+ * <a href="https://imgur.com">Imgur</a>.
  */
 class ImgurService extends HttpService {
 
   /**
-   * TODO: Document
+   * Creates an instance of {@link ImgurService} under the specified <code>category</code>.
    *
-   * @param {string} category -
+   * @param {string} category - the category to be used
    * @public
    */
   constructor(category) {
@@ -41,6 +42,7 @@ class ImgurService extends HttpService {
 
   /**
    * @override
+   * @inheritDoc
    */
   getRequestOptions(name) {
     return { uri: `https://imgur.com/user/${encodeURIComponent(name)}` };
