@@ -1,6 +1,6 @@
 {
   "name": "throne",
-  "version": "0.1.0alpha",
+  "version": "0.1.0",
   "description": "Name availability checker",
   "homepage": "https://github.com/neocotic/throne",
   "bugs": {
