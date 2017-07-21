@@ -65,25 +65,25 @@ The command line interface is the primary intended use for Throne and it's desig
 there's a few pointers that can really be helpful:
 
 1. You can filter multiple services and/or categories at once:
-``` bash
-# Only check services in mail & social categories
-$ throne check -c mail -c social neocotic
-# Only check specific services
-$ throne check -s bitbucket -s github -s gitlab neocotic
-```
+    ``` bash
+    # Only check services in mail & social categories
+    $ throne check -c mail -c social neocotic
+    # Only check specific services
+    $ throne check -s bitbucket -s github -s gitlab neocotic
+    ```
 2. You can even exclude multiple services and/or categories at once by using a colon prefix:
-``` bash
-# Only check services in all categories except health
-$ throne check -c :health neocotic
-# Only check services in social category except LinkedIn 
-$ throne check -c social -s :linkedin neocotic
-```
+    ``` bash
+    # Only check services in all categories except health
+    $ throne check -c :health neocotic
+    # Only check services in social category except LinkedIn 
+    $ throne check -c social -s :linkedin neocotic
+    ```
 3. You don't have to be too precise when targeting services for filtering as all non-alphanumeric (incl. whitespace)
 characters are ignored, which means the following have the same result:
-``` bash
-$ throne check -s getsatisfcation neocotic 
-$ throne check -s "Get Satisfaction" neocotic
-```
+    ``` bash
+    $ throne check -s getsatisfcation neocotic 
+    $ throne check -s "Get Satisfaction" neocotic
+    ```
 
 ## API
 
@@ -114,16 +114,53 @@ Checks the availability of the specified `name` across all supported services us
 This method returns a `Promise` that is resolved with a report once all services have been checked. However, progress
 can be monitored by listening to events that are emitted by `throne`.
 
-TODO: Document events
-TODO: Document options
-TODO: Provide example
+#### Options
+
+| Option    | Description                                                                        | Default |
+| --------- | ---------------------------------------------------------------------------------- | ------- |
+| `filter`  | Function to be used to filter which services are checked based on their descriptor | *All*   |
+| `timeout` | Timeout to be applied to each individual service check (in milliseconds)           | *None*  |
+
+#### Events
+
+| Event          | Description                                                                                                         |
+| -------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `check`        | Fired once the services have been loaded (and potentially filtered) but before any services are checked             |
+| `checkservice` | Fired immediately before a service is checked                                                                       |
+| `result`       | Fired immediately after a service is checked along with its findings                                                |
+| `report`       | Fired once all services have been checked along with a report containing all of their findings, including a summary |
+
+#### Examples
+
+``` javascript
+throne.check('neocotic', { timeout: 5000, filter: (descriptor) => descriptor.category === 'tech' })
+  .then((report) => {
+    if (report.status.failed) {
+      console.error(`${report.status.failed} checks failed!`);
+    } else {
+      console.log(`Unique: ${report.unique ? 'Yes' : 'No'}`);
+    }
+  });
+```
 
 ### `list([options])`
 
 Provides the list of all supported services using the `options` provided.
 
-TODO: Document options
-TODO: Provide example
+#### Options
+
+| Option    | Description                                                                         | Default |
+| --------- | ----------------------------------------------------------------------------------- | ------- |
+| `filter`  | Function to be used to filter which services are provided based on their descriptor | *All*   |
+
+#### Examples
+
+``` javascript
+throne.list({ filter: (descriptor) => descriptor.category === 'social' })
+  .then((descriptors) => {
+    console.log(descriptors.map((descriptor) => descriptor.title).join(','));
+  });
+```
 
 ## Bugs
 
