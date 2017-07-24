@@ -23,7 +23,7 @@
 'use strict';
 
 const async = require('async');
-const debug = require('debug')('throne');
+const debug = require('debugged').create('throne');
 const EventEmitter = require('events').EventEmitter;
 const trim = require('lodash.trim');
 
@@ -52,7 +52,7 @@ class Throne extends EventEmitter {
 
     this[_serviceManager] = new ServiceManager();
 
-    debug('Initialized Throne');
+    debug.log('Initialized Throne');
   }
 
   /**
@@ -83,7 +83,7 @@ class Throne extends EventEmitter {
 
     name = trim(name).toLowerCase();
 
-    debug('Checking "%s" using options: %o', name, options);
+    debug.log('Checking "%s" using options: %o', name, options);
 
     return this[_serviceManager].get({ filter: options.filter })
       .then((services) => this[_checkServices](name, options, services))
@@ -105,7 +105,7 @@ class Throne extends EventEmitter {
       options = {};
     }
 
-    debug('Listing services and categories using options: %o', options);
+    debug.log('Listing services and categories using options: %o', options);
 
     return this[_serviceManager].get({ filter: options.filter })
       .then((services) => services.map((service) => service.descriptor));
@@ -114,7 +114,7 @@ class Throne extends EventEmitter {
   [_checkService](name, options, service) {
     const descriptor = service.descriptor;
 
-    debug('Checking "%s" using %s service under %s category', name, descriptor.title, descriptor.category);
+    debug.log('Checking "%s" using %s service under %s category', name, descriptor.title, descriptor.category);
 
     /**
      * The "checkservice" event is fired immediately before a service is checked.
@@ -135,7 +135,7 @@ class Throne extends EventEmitter {
           name
         }, descriptor);
 
-        debug('Check succeeded for "%s" using %s service: %o', name, descriptor.title, result);
+        debug.log('Check succeeded for "%s" using %s service: %o', name, descriptor.title, result);
 
         return result;
       })
@@ -146,7 +146,7 @@ class Throne extends EventEmitter {
           name
         }, descriptor);
 
-        debug('Check failed for "%s" using %s service: %o', name, descriptor.title, result);
+        debug.log('Check failed for "%s" using %s service: %o', name, descriptor.title, result);
 
         return result;
       })
@@ -198,7 +198,7 @@ class Throne extends EventEmitter {
   }
 
   [_generateReport](name, results) {
-    debug('Generating report for "%s" based on results: %o', name, results);
+    debug.log('Generating report for "%s" based on results: %o', name, results);
 
     const stats = {
       available: 0,
@@ -229,7 +229,7 @@ class Throne extends EventEmitter {
       unique: stats.failed ? null : stats.available === stats.passed
     };
 
-    debug('Report generated for "%s": %o', name, report);
+    debug.log('Report generated for "%s": %o', name, report);
 
     /**
      * The "report" event is fired once all services have been checked along with a report containing all of their

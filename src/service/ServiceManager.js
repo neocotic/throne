@@ -24,7 +24,7 @@
 
 /* eslint global-require: "off" */
 
-const debug = require('debug')('throne:service');
+const debug = require('debugged').create('throne:service');
 const glob = require('glob');
 const path = require('path');
 const sortBy = require('lodash.sortby');
@@ -90,10 +90,10 @@ class ServiceManager {
    * @public
    */
   load() {
-    debug('Loading available services');
+    debug.log('Loading available services');
 
     if (this[_services]) {
-      debug('%d services have previously been loaded', this[_services].length);
+      debug.log('%d services have previously been loaded', this[_services].length);
 
       return Promise.resolve(this[_services].slice());
     }
@@ -109,7 +109,7 @@ class ServiceManager {
 
           const service = new ServiceImpl(category);
 
-          debug('Loaded %s service under %s category', service.descriptor.title, service.descriptor.category);
+          debug.log('Loaded %s service under %s category', service.descriptor.title, service.descriptor.category);
 
           return service;
         }), [
@@ -117,7 +117,7 @@ class ServiceManager {
           (service) => service.descriptor.title.toUpperCase()
         ]);
 
-        debug('Loaded %d services within %d categories', services.length, categories.size);
+        debug.log('Loaded %d services within %d categories', services.length, categories.size);
 
         this[_services] = services;
 
@@ -137,7 +137,7 @@ class ServiceManager {
   unload() {
     this[_services] = null;
 
-    debug('Unloaded all services');
+    debug.log('Unloaded all services');
   }
 
   [_findServiceFiles]() {
