@@ -26,8 +26,8 @@
 
 const chalk = require('chalk');
 const Command = require('commander').Command;
-const debugModule = require('debug');
-const debug = debugModule('throne:cli');
+const Debugged = require('debugged');
+const debug = Debugged.create('throne:cli');
 const EOL = require('os').EOL;
 const groupBy = require('lodash.groupby');
 const rightPad = require('right-pad');
@@ -132,7 +132,7 @@ class CLI {
       .option('-d, --debug', 'enable debug level logging')
       .option('-s, --service <title>', 'filter service by title', (s, list) => list.concat(s), [])
       .option('--stack', 'print stack traces for errors')
-      .on('option:debug', () => debugModule.enable('*'));
+      .on('option:debug', () => Debugged.enable('*'));
 
     this[_command].command('check <name>')
       .alias('chk')
@@ -197,7 +197,7 @@ class CLI {
       args = [];
     }
 
-    debug('Parsing arguments: %o', args);
+    debug.log('Parsing arguments: %o', args);
 
     this[_command].parse(args);
 
@@ -217,7 +217,7 @@ class CLI {
         return Math.max(acc, `${descriptor.category} > ${descriptor.title}`.length);
       }, 0);
 
-      debug('Calculated maximum length for service descriptor: %d', maxLength);
+      debug.log('Calculated maximum length for service descriptor: %d', maxLength);
     });
 
     throne.addListener('checkservice', (event) => {
