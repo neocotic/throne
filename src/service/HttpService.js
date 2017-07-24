@@ -22,7 +22,7 @@
 
 'use strict';
 
-const debug = require('debug')('throne:service');
+const debug = require('debugged').create('throne:service');
 const defaultsDeep = require('lodash.defaultsdeep');
 const HttpStatus = require('http-status-codes');
 const pollock = require('pollock');
@@ -96,17 +96,17 @@ class HttpService extends Service {
         timeout: options.timeout
       });
 
-      debug('Sending HTTP request for %s service: %o', this.descriptor.title, requestOptions);
+      debug.log('Sending HTTP request for %s service: %o', this.descriptor.title, requestOptions);
 
       request(requestOptions, (error, response) => {
         if (error) {
-          debug('HTTP request for %s service failed: %s', this.descriptor.title, error);
+          debug.log('HTTP request for %s service failed: %s', this.descriptor.title, error);
 
           reject(error);
         } else {
           const statusCode = response.statusCode;
 
-          debug('HTTP request for %s service responded with status code: %d', this.descriptor.title, statusCode);
+          debug.log('HTTP request for %s service responded with status code: %d', this.descriptor.title, statusCode);
 
           if (this.getAcceptedStatusCodes().indexOf(statusCode) === -1) {
             let statusText;
@@ -120,7 +120,7 @@ class HttpService extends Service {
               message += ` - ${statusText}`;
             }
 
-            debug('%s service rejected HTTP response status code: %d (%s)', this.descriptor.title, statusCode,
+            debug.log('%s service rejected HTTP response status code: %d (%s)', this.descriptor.title, statusCode,
               statusText || '?');
 
             reject(new Error(message));
@@ -128,11 +128,11 @@ class HttpService extends Service {
             try {
               const result = this.checkResponse(name, response);
 
-              debug('%s service determined available from HTTP response: %s', this.descriptor.title, result);
+              debug.log('%s service determined available from HTTP response: %s', this.descriptor.title, result);
 
               resolve(result);
             } catch (e) {
-              debug('%s service failed when checking HTTP response', this.descriptor.title);
+              debug.log('%s service failed when checking HTTP response', this.descriptor.title);
 
               reject(e);
             }
